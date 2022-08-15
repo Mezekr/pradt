@@ -194,7 +194,7 @@ class RepoDataFetcher:
             print(f"{repo_name}: Repository Data file is created")
             logging.info(f"{repo_name}: Repository Data file is created")
 
-    def get_commits_his(self, repo_name:str)-None:
+    def get_commits_his(self, repo_name:str)->None:
         """Retrieve repository commits history and saves it in a corresponding
          commits CSV file under the repository folder. 
 
