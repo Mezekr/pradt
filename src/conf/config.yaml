@@ -4,13 +4,14 @@ files:
 
 paths:
   log: ./runs
-  raw_data: ${hydra:runtime.cwd}/data/raw
-  processed_data: ${hydra:runtime.cwd}/data/processed
-  final_data: ${hydra:runtime.cwd}/data/final
+  raw_data: ${hydra:runtime.cwd}/pradt/data/raw
+  processed_data: ${hydra:runtime.cwd}/pradt/data/processed
+  final_data: ${hydra:runtime.cwd}/pradt/data/final
 
 repos:
   repos_dir: ${hydra:runtime.cwd}/repos_name/repos.csv
-  repo_name: ansible/ansible
+  repo_name:
+
 features:
   repo_data: repo_data
   commits: commits
