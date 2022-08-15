@@ -1,7 +1,9 @@
 /.env
 /.vscode
 /src/__pycache__
-/data/*/*
+/data/raw/*
+/data/processed/*
+/data/final/*
 /src/outputs/*
 /outputs/*
 /repos_his.log
