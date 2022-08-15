@@ -194,6 +194,46 @@ class RepoDataFetcher:
             print(f"{repo_name}: Repository Data file is created")
             logging.info(f"{repo_name}: Repository Data file is created")
 
+    def get_commits_his(self, repo_name:str)-None:
+        """Retrieve repository commits history and saves it in a corresponding
+         commits CSV file under the repository folder. 
+
+        Args:
+            repo_name (str): Repository's full name.
+        """
+
+        file_exist, file_to_save = self.check_file(repo_name, "commits")
+        if file_exist:
+            print(f"{repo_name} {file_to_save.stem} file already exists")
+            logging.info(f"{repo_name} {file_to_save.stem} file already exists")
+        else:
+            df_repo = pd.DataFrame()
+            gh_user = self.get_github_user()
+            remaning = self.check_API_ratelimit(gh_user, 100)
+            repo = gh_user.get_repo(repo_name)
+
+            repo_commits = repo.get_commits()
+            r_commit_count = len(list(repo_commits))
+
+            for index, commit in enumerate(repo_commits):
+                remaning = self.check_API_ratelimit(gh_user, 25)
+                commit_date = commit.commit.committer.date
+                print(index, remaning, repo_name, r_commit_count, commit, commit_date)
+                df_repo = df_repo.append(
+                    {
+                        "repo_name": repo_name,
+                        "commit_count": r_commit_count,
+                        "commit_sha": commit,
+                        "commit_date": commit_date,
+                    },
+                    ignore_index=True,
+                )
+
+            df_repo.to_csv(file_to_save, index=False)
+            print(f"{repo_name}: commits file is created")
+            logging.info(f"{repo_name}: commits file is created")
+
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
