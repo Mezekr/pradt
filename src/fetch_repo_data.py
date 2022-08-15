@@ -232,6 +232,45 @@ class RepoDataFetcher:
             df_repo.to_csv(file_to_save, index=False)
             print(f"{repo_name}: commits file is created")
             logging.info(f"{repo_name}: commits file is created")
+            
+    def get_issues_and_pull_his(self, repo_name:str)-> None:
+        """Retrieve repository pull requests andissues history and saves it in a corresponding
+         issues_pulls CSV file under the repository folder. 
+
+        Args:
+            repo_name (str): Repository's full name.
+        """
+        file_exist, file_to_save = self.check_file(repo_name, "issues_pulls")
+        if file_exist:
+            print(f"{repo_name} {file_to_save.stem} file already exists")
+            logging.info(f"{repo_name} {file_to_save.stem} file already exists")
+        else:
+            df_repo = pd.DataFrame()
+            gh_user = self.get_github_user()
+
+            repo = gh_user.get_repo(repo_name)
+
+            r_all_issues = repo.get_issues(state="all")
+            for index, repo_issue in enumerate(r_all_issues):
+                self.check_API_ratelimit(gh_user, 50)
+                if repo_issue.pull_request:
+                    Issue_or_pull = "pull request"
+                else:
+                    Issue_or_pull = "Issue"
+                df_repo = df_repo.append(
+                    {
+                        "repo_name": repo_name,
+                        "issue_pull": Issue_or_pull,
+                        "pr_iss_state": repo_issue.state,
+                        "pr_iss_opened_at": repo_issue.created_at,
+                        "pr_iss_updated_at": repo_issue.updated_at,
+                        "pr_iss_closed_at": repo_issue.closed_at,
+                    },
+                    ignore_index=True,
+                )
+            df_repo.to_csv(file_to_save, index=False)
+            print(f"{repo_name}: Issues and pull requests file is created")
+            logging.info(f"{repo_name}: Issues and pull requests file is created")
 
 
 
