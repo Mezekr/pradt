@@ -146,3 +146,30 @@ def get_save_path(
         saving_path.touch()
         return saving_path
     return saving_path
+
+
+def set_path(repos_dir: str, save_path: str) -> Tuple[Path, Path]:
+    """Returns a tuple of paths if the path exists.
+
+    Args:
+        repos_dir (str): Path of Directory of the repositories
+        save_path (str): Path to save the processed File or Directory.
+
+    Raises:
+        NotFoundError: If the repository isrectory not exists.
+        NotFoundError: If the Directory to save is not a directory or exists
+
+    Returns:
+        Tuple[Path, Path]: Valide Path of repository directory and Directory to save.
+    """
+    try:
+        repos_path: Path = Path(repos_dir)
+        save_to: Path = Path(save_path)
+        if not repos_path.exists():  # and save_to.exists()):
+            raise NotFoundError(f'DirFile: "{repos_path}" File or Directory not found.')
+        elif not save_to.exists():
+            raise NotFoundError(f'DirFile: "{save_to}" File or Directory not found.')
+        return repos_path, save_to
+    except NotFoundError as e:
+        print(e)
+        sys.exit(1)
