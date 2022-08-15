@@ -89,6 +89,18 @@ class RepoDataFetcher:
         except GithubException as e:
             print(e)
 
+    def create_repos_dir(self) -> Path:
+        """creates a directory for the resulting repository files.
+
+        Returns:
+            Path: Directory path to the resulting repository files.
+        """
+        repos_dir = self.save_path
+        if not repos_dir.is_dir():
+            Path.mkdir(repos_dir, exist_ok=True)
+            return repos_dir
+        return repos_dir
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
