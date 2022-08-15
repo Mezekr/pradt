@@ -33,11 +33,34 @@ class RepoDataFetcher:
         """Initialization of the RepoDataFetcher class.
 
         Args:
-            repo (Union[str, List[str]]): Accepts either a repository name or a list of repository names.
-            save_path (Path): Directory path object to save the repository related file.
+            repo (Union[str, List[str]]): Accepts either a repository name or
+            a list of repository names.
+            save_path (Path): Directory path object to save the repository
+            related file.
         """
         self.repo_path = repo
         self.save_path = save_path
+
+    def get_github_user(self) -> Optional[Github]:
+        """Authorize GitHub users through tokens (if provided) and return User.
+
+        Returns:
+            Optional[Github]: GitHub Authorized User.
+        """
+        TOKEN = dotenv_values(".env")["TOKEN"]
+        if not TOKEN or TOKEN.isspace():
+
+            print(
+                "Tip: A GitHub access token has not been provided. Get the  \
+                access token from GitHub to get more requests from users to the \
+                the server (i.e. 5000 requests per hour instead of 60)."
+            )
+        try:
+            git_user = Github(TOKEN, retry=50, timeout=10, per_page=100)
+            return git_user
+        except BadCredentialsException as e:
+            print(e.status)
+            print("Limit exceeded")
 
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
