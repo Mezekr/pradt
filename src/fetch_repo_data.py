@@ -449,8 +449,16 @@ class RepoDataFetcher:
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
-    pass
+    repos, save_path = utils.set_path(cfg.repos.repos_dir, cfg.paths.raw_data)
 
+    repo_data_fetch = RepoDataFetcher(repos, save_path)
+
+    df = pd.read_csv(repos)
+    for index, repo_name in enumerate(df["repo_name"]):
+        repo_data_fetch.get_repo_data(repo_name)
+        print("Processing....")
+    print("All repository are processed.")
+    logging.info("All repository are processed.")
 
 if __name__ == "__main__":
     main()
