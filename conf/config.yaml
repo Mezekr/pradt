@@ -1,0 +1,21 @@
+params:
+
+files:
+
+paths:
+  log: ./runs
+  raw_data: ${hydra:runtime.cwd}/data/raw
+  processed_data: ${hydra:runtime.cwd}/data/processed
+  final_data: ${hydra:runtime.cwd}/data/final
+
+repos:
+  repos_dir: ${hydra:runtime.cwd}/repos_name/repos.csv
+  repo_name: ansible/ansible
+features:
+  repo_data: repo_data
+  commits: commits
+  issues_pulls: issues_pulls
+  forks: forks
+  stargazer: stargazer
+  contributors: contributers
+  watchers: watchers
