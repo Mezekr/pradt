@@ -271,7 +271,7 @@ class RepoDataFetcher:
             df_repo.to_csv(file_to_save, index=False)
             print(f"{repo_name}: Issues and pull requests file is created")
             logging.info(f"{repo_name}: Issues and pull requests file is created")
-            
+
     def get_forks_his(self, repo_name:str)-> None:
         """Retrieve repository forks history and saves it in a corresponding
             forks CSV file under the repository folder. 
@@ -309,6 +309,41 @@ class RepoDataFetcher:
             print(f"{repo_name}: forks file is created")
             logging.info(f"{repo_name}: forks file is created")
 
+    def get_watchers_his(self, repo_name: str)-> None:
+        """Retrieve repository Watchers history and saves it in a corresponding
+            watchers CSV file under the repository folder. 
+
+        Args:
+            repo_name (str): Repository's full name.
+        """
+
+        file_exist, file_to_save = self.check_file(repo_name, "watchers")
+        if file_exist:
+            print(f"{repo_name} {file_to_save.stem} file already exists")
+            logging.info(f"{repo_name} {file_to_save.stem} file already exists")
+        else:
+            df_repo = pd.DataFrame()
+            gh_user = self.get_github_user()
+
+            repo = gh_user.get_repo(repo_name)
+
+            repo_subscribers = repo.get_subscribers()
+            for index, subscriber in enumerate(repo_subscribers):
+                self.check_API_ratelimit(gh_user, 25)
+                df_repo = df_repo.append(
+                    {
+                        "repo_name": repo_name,
+                        "watchers_count": repo.watchers_count,
+                        "subscribers_count": repo.subscribers_count,
+                        "subscriber": subscriber,
+                        "subscriber_username": subscriber.login,
+                        "subscribed_at": subscriber.created_at,
+                    },
+                    ignore_index=True,
+                )
+            df_repo.to_csv(file_to_save, index=False)
+            print(f"{repo_name} : watchers/subscriber file is created")
+            logging.info(f"{repo_name} : watchers/subscriber file is created")
 
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
