@@ -71,3 +71,23 @@ def list_repos_dirs(repos_dir: Path) -> List[Path]:
             repo_dir.extend([dir for dir in dir_path.glob("*") if dir.is_dir()])
 
     return repo_dir
+
+
+def list_repo_files(repo_dir: Path) -> Dict[str, Path]:
+    """Returns paths list of feature file in a repository directory.
+
+    Args:
+        repo_dir (Path): Path to the repository directory
+
+    Returns:
+        Dict[str, Path]: List of feature file path of repository.
+    """
+    # if not get_repo_path(repo_dir):
+    #     raise NotFoundError(f'Path Does not Exist: "{repo_dir}" not found.')
+    # elif len(list(repo_dir.iterdir())) == 0:
+    #     raise FileDirEmptyError(f"Empty File or Directory:{repo_dir}")
+    repo_path = get_repo_path(repo_dir)
+    if repo_path is None:
+        print("Something went wrong")
+    repo_lsit = {r_file.stem: r_file for r_file in repo_path.glob("*.csv")}
+    return repo_lsit
