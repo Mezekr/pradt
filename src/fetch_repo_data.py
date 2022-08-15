@@ -427,6 +427,25 @@ class RepoDataFetcher:
             df_repo.to_csv(file_to_save, index=False)
             print(f"{repo_name}: stargazer file has been created")
             logging.info(f"{repo_name}: stargazer file is created")
+    
+    def get_repo_data(self, repo_name:str)-> None:
+        """ Gets all repository data.
+
+        Args:
+            repo_name (str): Repository's full name.
+        """
+        self.get_github_user()
+        self.create_repo_dir(repo_name, show_msg=True)
+        self.get_repo_info(repo_name)
+        self.get_commits_his(repo_name)
+        self.get_forks_his(repo_name)
+        self.get_issues_and_pull_his(repo_name)
+        self.get_stargazer_his(repo_name)
+        self.get_watchers_his(repo_name)
+        self.get_contributors_his(repo_name)
+
+        print(f"{repo_name}: Repository data is successfully extracted.")
+        logging.info(f"{repo_name}: Repository data is successfully extracted.")
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
