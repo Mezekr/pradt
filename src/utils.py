@@ -91,3 +91,58 @@ def list_repo_files(repo_dir: Path) -> Dict[str, Path]:
         print("Something went wrong")
     repo_lsit = {r_file.stem: r_file for r_file in repo_path.glob("*.csv")}
     return repo_lsit
+
+
+def get_feat_file(feature_name: str, repo_dir: Path) -> Path:
+    """Gets a data of given repository's feature file(e.g commits).
+
+    Args:
+        feature_name (str): Repositiy Feature name.
+        repo_dir (Path): Path of the repository.
+
+    Returns:
+        Path: Path of the feature file.
+    """
+    repo_path = get_repo_path(repo_dir)
+    if repo_path is None:
+        print("Something went wrong")
+    repo_files = list_repo_files(repo_dir)
+    return repo_files[feature_name]
+
+
+def get_save_path(
+    feature_name: str,
+    repos_dir: Path,
+    save_dir: Path,
+    parent: bool,
+) -> Path:
+    """Creates a path to save the processed File or Directory.
+
+    Args:
+        feature_name (str): Repositiy Feature name.
+        repos_dir (Path): Path of Directory of the repositories.
+        save_dir (Path): Path to save the processed File or Directory.
+        parent (bool): Treu if the you want to keep the original parent directory name.
+                        False if you want just to save unter the current directory.
+
+    Returns:
+        Path: Path to save the processed File or Directory.
+    """
+
+    if not save_dir.exists():
+        save_dir.mkdir(exist_ok=True)
+    repo_name = repos_dir.name
+    parent_dir = list(repos_dir.parents)[0].name
+
+    if not parent:
+        saving_path = (save_dir / f"{repo_name}_{feature_name}").with_suffix(".csv")
+        # print(repo_name, repo_lang_dir)
+    else:
+        saving_path = save_dir / parent_dir / repo_name
+        saving_path.mkdir(parents=True, exist_ok=True)
+        saving_path = (saving_path / f"{feature_name}").with_suffix(".csv")
+
+    if not saving_path.exists():
+        saving_path.touch()
+        return saving_path
+    return saving_path
