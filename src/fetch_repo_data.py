@@ -62,6 +62,33 @@ class RepoDataFetcher:
             print(e.status)
             print("Limit exceeded")
 
+    def check_API_ratelimit(self, github_user: Github, min_limit: int) -> None:
+        """checks the GitHub API rate limit and the remaining rate.
+        Args:
+            github_user (Github): GitHub Authorized User.
+            min_limit (int): Minimum limit to be checked against
+                            before the rate limit is reached.
+        """
+        try:
+            requests_remaning, requests_limit = github_user.rate_limiting
+            if (requests_limit == 5000) & (requests_remaning < min_limit):
+                print(requests_remaning, requests_limit)
+                reset_timestamp = github_user.rate_limiting_resettime
+                seconds_until_reset = reset_timestamp - time.time()
+                minutes = math.ceil(seconds_until_reset / 60)
+                print(f"Waiting for {minutes} minutes to refresh request limit...")
+                for i in range(minutes):
+                    print(
+                        "%s[%s%s] %i/%i"
+                        % ("Sleeping ", "#" * i, "." * (minutes - i), i, minutes),
+                        end="",
+                        flush=True,
+                    )
+                time.sleep(60)
+                print(end="\r")
+        except GithubException as e:
+            print(e)
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
