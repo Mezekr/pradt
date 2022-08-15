@@ -4,16 +4,16 @@ files:
 
 paths:
   log: ./runs
-  raw_data: ${hydra:runtime.cwd}/pradt/data/raw
-  processed_data: ${hydra:runtime.cwd}/pradt/data/processed
-  final_data: ${hydra:runtime.cwd}/pradt/data/final
+  raw_data: ${hydra:runtime.cwd}/data/raw
+  processed_data: ${hydra:runtime.cwd}/data/processed
+  final_data: ${hydra:runtime.cwd}/data/final
 
 repos:
   repos_dir: ${hydra:runtime.cwd}/repos_name/repos.csv
   repo_name:
 
 features:
-  repo_data: repo_data
+  repo_data: repo_dataq
   commits: commits
   issues_pulls: issues_pulls
   forks: forks
