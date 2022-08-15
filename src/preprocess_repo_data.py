@@ -338,6 +338,15 @@ class RowRepoDataProcessor:
 def main(cfg: ReposConfig):
 
     repo_processor = RowRepoDataProcessor()
+    repo_processor.agg_repo_feat(cfg.paths.raw_data, cfg.paths.processed_data)
+    repo_processor.get_all_feat_data(cfg.paths.processed_data, cfg.paths.final_data)
+    repo_processor.agg_repos_generic_data(cfg.paths.raw_data, cfg.paths.processed_data)
+    repo_processor.gen_repos_age(cfg.paths.raw_data, cfg.paths.processed_data)
+    repo_processor.set_maintainability_state(
+        cfg.paths.raw_data, 24, cfg.paths.final_data
+    )
+
+    print("--- Process has been Done. ---")
 
 
 if __name__ == "__main__":
