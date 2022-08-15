@@ -344,6 +344,49 @@ class RepoDataFetcher:
             df_repo.to_csv(file_to_save, index=False)
             print(f"{repo_name} : watchers/subscriber file is created")
             logging.info(f"{repo_name} : watchers/subscriber file is created")
+    
+    def get_contributors_his(self, repo_name:str)-> None:
+        """Retrieve repository Contributors history and saves it in a corresponding
+            Contributors CSV file under the repository folder. 
+
+        Args:
+            repo_name (str): Repository's full name.
+        """
+
+        file_exist, file_to_save = self.check_file(repo_name, "Contributors")
+        if file_exist:
+            print(f"{repo_name} {file_to_save.stem} file already exists")
+            logging.info(f"{repo_name} {file_to_save.stem} file already exists")
+        else:
+            df_repo = pd.DataFrame()
+            gh_user = self.get_github_user()
+            repo = gh_user.get_repo(repo_name)
+            all_contributos = repo.get_contributors(True).totalCount
+            author_contributos = repo.get_contributors()
+
+            contributers_count = author_contributos.totalCount
+            print(
+                f"Github provides only data of the {contributers_count} / {all_contributos} Contributors"
+            )
+            logging.info(
+                f"Github provides only data of the {contributers_count} / {all_contributos} Contributors"
+            )
+
+            for index, contributer in enumerate(author_contributos):
+                self.check_API_ratelimit(gh_user, 25)
+                df_repo = df_repo.append(
+                    {
+                        "repo_name": repo_name,
+                        "contributors_count": contributers_count,
+                        "contributor": contributer.login,
+                        "contributed_date": contributer.created_at,
+                    },
+                    ignore_index=True,
+                )
+
+            df_repo.to_csv(file_to_save, index=False)
+            print(f"{repo_name}:  Contributors file is created")
+            logging.info(f"{repo_name}:  Contributors file is created")
 
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
