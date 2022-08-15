@@ -307,6 +307,29 @@ class RowRepoDataProcessor:
 
         return age_df
 
+    def get_all_feat_data(self, repos_dir: str, save_path: str) -> None:
+        """Gets the file contains all features of a repository.
+
+        Args:
+            repos_dir (str): Path of Directory of the repositories to be processed.
+            save_path (str): Path of Directory to save the  processed repositories.
+        """
+
+        repo_dir, save_to = utils.set_path(repos_dir, save_path)
+        dir_list = utils.list_repos_dirs(repo_dir)
+        print(f"Aggrigating {len(dir_list)} repositories feature....")
+        for repo_path in utils.list_repos_dirs(repo_dir):
+
+            parent = list(repo_path.parents)[0].name
+            ff = utils.get_feat_file("all_feature", repo_path)
+            # print(ff)
+            feat_df = pd.read_csv(ff)
+
+            ff_save = utils.get_save_path(
+                f"all_feature_{parent}", repo_path, save_to, False
+            )
+            feat_df.to_csv(ff_save, index=False)
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
