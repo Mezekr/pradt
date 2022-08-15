@@ -127,6 +127,22 @@ class RepoDataFetcher:
                 logging.info(f"{repo_name}: Dir exist already ")
         return repo_path
 
+    def check_file(self, repo_name: str, repo_file: str = None) -> Tuple[bool, Path]:
+        """Checks whether the file or directory of a repository already exists
+
+        Args:
+            repo_name (str): Repository's full name
+            repo_file (str, optional): repository data file(e.g commit, fork). Defaults to None.
+
+        Returns:
+            Tuple[bool, Path]: Returns True or False and the file path if the file exit or not
+        """
+        repo_dir = self.create_repo_dir(repo_name)
+        file_to_save = Path(repo_dir, f"{repo_file}").with_suffix(".csv")
+        if file_to_save.exists():
+            return (True, file_to_save)
+        return (False, file_to_save)
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
