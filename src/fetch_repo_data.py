@@ -143,6 +143,57 @@ class RepoDataFetcher:
             return (True, file_to_save)
         return (False, file_to_save)
 
+    def get_repo_info(self, repo_name: str) -> None:
+        """Retrieve general information about the repository and saves it in
+            the respective csv file under the repository Folder.
+
+        Args:
+            repo_name (str): Repository's full name.
+        """
+
+        file_exist, file_to_save = self.check_file(repo_name, "repo_data")
+        if file_exist:
+            print(f"{repo_name} {file_to_save.stem} file already exists")
+            logging.info(f"{repo_name} {file_to_save.stem} file already exists")
+        else:
+
+            df_repo = pd.DataFrame()
+            gh_user = self.get_github_user()
+            self.check_API_ratelimit(gh_user, 50)
+            repo = gh_user.get_repo(repo_name)
+            df_repo = df_repo.append(
+                {
+                    "repo_name": repo_name,
+                    "discription": repo.description,
+                    "language": repo.language,
+                    "user_Name": repo.url.split("/")[-2],
+                    "created_at": pd.to_datetime(repo.created_at),
+                    "pushed_at": pd.to_datetime(repo.pushed_at),
+                    "last_update_at": pd.to_datetime(repo.updated_at),
+                    "stars": repo.stargazers_count,
+                    "size": repo.size,
+                    "repo_url": repo.url,
+                    "repo_html_url": repo.html_url,
+                    "branch_count": repo.get_branches().totalCount,
+                    "milestone_count": repo.get_milestones(state="all").totalCount,
+                    "pullrequest_count": repo.get_pulls(state="all").totalCount,
+                    "release_count": repo.get_releases().totalCount,
+                    "workflow_count": repo.get_workflows().totalCount,
+                    "issues_count": repo.get_issues(state="all").totalCount,
+                    "watchers_count": repo.watchers_count,
+                    "subscribers_count": repo.subscribers_count,
+                    "has_wiki": bool(repo.has_wiki),
+                    "has_pages": bool(repo.has_pages),
+                    "has_projects": bool(repo.has_projects),
+                    "has_downloads": bool(repo.has_downloads),
+                },
+                ignore_index=True,
+            )
+
+            df_repo.to_csv(file_to_save, index=False)
+            print(f"{repo_name}: Repository Data file is created")
+            logging.info(f"{repo_name}: Repository Data file is created")
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
