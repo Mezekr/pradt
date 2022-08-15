@@ -257,6 +257,31 @@ class RowRepoDataProcessor:
             merged_NaN_df.to_csv(processed_file_path, index_label="date")
         print("Repository features has been merged successfully")
 
+    def agg_repos_generic_data(self, repos_dir: str, save_path: str) -> Optional[Path]:
+        """Aggregates all repositoreies generic data in to one File.
+
+        Args:
+            repos_dir (str): Path of Directory of the repositories to be processed.
+            save_path (str): Path of Directory to save the  processed repositories.
+
+        Returns:
+            Optional[Path]: Path, where the generic data is saved.
+        """
+        repos_path, save_to = utils.set_path(repos_dir, save_path)
+
+        concat_df = pd.DataFrame()
+        for repo_path in utils.list_repos_dirs(repos_path):
+            raw_file = utils.get_feat_file("repo_data", repo_path)
+            temp_df = pd.read_csv(raw_file)
+            concat_df = pd.concat([concat_df, temp_df], ignore_index=True)
+        concat_df.drop_duplicates(subset=["repo_name", "language"], inplace=True)
+        saving_path = utils.get_save_path(
+            "generic_repos_data", repos_path, save_to, False
+        )
+        concat_df.to_csv(saving_path, index=False)
+
+        return saving_path
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
