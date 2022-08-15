@@ -51,12 +51,7 @@ class RowRepoDataProcessor:
         Returns:
             Union[pd.DataFrame, None]: Returns Dataframe of the Commits time series data.
         """
-        # save_to: Path = Path(save_path)
 
-        # if not (repo_path.exists() and save_to.exists()):
-        #     raise NotFoundError(
-        #         f'Path Does not Exist: "{repo_path} or {save_to}" not found.'
-        #     )
         repo_path, save_to = utils.set_path(repo_dir, save_path)
         raw_file = utils.get_feat_file(feature_name, repo_path)
 
@@ -86,11 +81,6 @@ class RowRepoDataProcessor:
             Union[pd.DataFrame, None]: Returns Dataframe of the Forks time series data.
         """
 
-        # save_to: Path = Path(save_path)
-        # if not (repo_path.exists() and save_to.exists()):
-        #     raise NotFoundError(
-        #         f'Path Does not Exist: "{repo_path} or {save_to}" not found.'
-        #     )
         repo_path, save_to = utils.set_path(repo_dir, save_path)
         raw_file = utils.get_feat_file(feature_name, repo_path)
         print(raw_file)
@@ -120,11 +110,6 @@ class RowRepoDataProcessor:
             Union[pd.DataFrame, None]: Returns Dataframe of the Stars time series data.
         """
 
-        # save_to: Path = Path(save_path)
-        # if not (repo_path.exists() and save_to.exists()):
-        #     raise NotFoundError(
-        #         f'Path Does not Exist: "{repo_path} or {save_to}" not found.'
-        #     )
         repo_path, save_to = utils.set_path(repo_dir, save_path)
         raw_file = utils.get_feat_file("issues_pulls", repo_path)
 
@@ -196,11 +181,7 @@ class RowRepoDataProcessor:
         Returns:
             Optional[pd.DataFrame]: Returns Dataframe of the Stars time series data.
         """
-        # save_to: Path = Path(save_path)
-        # if not (repo_path.exists() and save_to.exists()):
-        #     raise NotFoundError(
-        #         f'Path Does not Exist: "{repo_path} or {save_to}" not found.'
-        #     )
+
         repo_path, save_to = utils.set_path(repo_dir, save_path)
         raw_file = utils.get_feat_file(feature_name, repo_path)
 
@@ -222,12 +203,7 @@ class RowRepoDataProcessor:
             save_path (str): Path of Directory to save the  processed repositories.
 
         """
-        # save_to: Path = Path(save_path)
-        # row_data_path: Path = Path(row_data_dir)
-        # if not (row_data_path.exists() and save_to.exists()):
-        #     raise NotFoundError(
-        #         f'Path Does not Exist: "{row_data_path} or {save_to}" not found.'
-        #     )
+
         row_data_path, save_to = utils.set_path(row_data_dir, save_path)
         dir_list = utils.list_repos_dirs(row_data_path)
         print(f"Aggrigating {len(dir_list)} repositories feature....")
@@ -292,7 +268,7 @@ class RowRepoDataProcessor:
 
         repos_path, save_to = utils.set_path(repos_dir, save_path)
         generic_data = self.agg_repos_generic_data(repos_dir, save_path)
-        # print(generic_data)
+
         days_cols = ["created_at", "pushed_at", "last_update_at"]
         age_df = pd.read_csv(
             generic_data, parse_dates=days_cols, infer_datetime_format=True
@@ -322,13 +298,40 @@ class RowRepoDataProcessor:
 
             parent = list(repo_path.parents)[0].name
             ff = utils.get_feat_file("all_feature", repo_path)
-            # print(ff)
             feat_df = pd.read_csv(ff)
 
             ff_save = utils.get_save_path(
                 f"all_feature_{parent}", repo_path, save_to, False
             )
             feat_df.to_csv(ff_save, index=False)
+
+    def set_maintainability_state(
+        self, repos_dir: str, period: int, save_path: str
+    ) -> None:
+        """defiens the maintenance state of a repository based on a last update.
+
+        Args:
+            repos_dir (str): Path of Directory of the repositories to be processed.
+            period (int): Time length to define maintainbility
+            save_path (str): Path of Directory to save the  processed repositories.
+        """
+        repos_path, save_to = utils.set_path(repos_dir, save_path)
+        generic_data = self.agg_repos_generic_data(repos_dir, save_path)
+        df = self.gen_repos_age(repos_dir, save_path)
+
+        df["without_updates"] = df.apply(
+            lambda row: abs((row.last_update_at - row.pushed_at).days // 7), axis=1
+        )
+        df["maintenance_state"] = df.apply(
+            lambda row: "Not Active" if row.without_updates > period else "Active",
+            axis=1,
+        )
+        saving_path = utils.get_save_path(
+            "generic_repos_data", repos_path, save_to, False
+        )
+        df.to_csv(saving_path, index=False)
+
+        return df
 
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
