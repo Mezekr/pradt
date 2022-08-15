@@ -282,6 +282,31 @@ class RowRepoDataProcessor:
 
         return saving_path
 
+    def gen_repos_age(self, repos_dir: str, save_path: str) -> None:
+        """Genrates repository age in days.
+
+        Args:
+            repos_dir (str): Path of Directory of the repositories to be processed.
+            save_path (str): Path of Directory to save the  processed repositories.
+        """
+
+        repos_path, save_to = utils.set_path(repos_dir, save_path)
+        generic_data = self.agg_repos_generic_data(repos_dir, save_path)
+        # print(generic_data)
+        days_cols = ["created_at", "pushed_at", "last_update_at"]
+        age_df = pd.read_csv(
+            generic_data, parse_dates=days_cols, infer_datetime_format=True
+        )
+        age_df["age_in_weeks"] = age_df.apply(
+            lambda row: ((row.last_update_at - row.created_at).days) // 7, axis=1
+        )
+        saving_path = utils.get_save_path(
+            "generic_repos_data", repos_path, save_to, False
+        )
+        age_df.to_csv(saving_path, index=False)
+
+        return age_df
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
