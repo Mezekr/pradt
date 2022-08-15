@@ -4,9 +4,9 @@ from typing import Dict, List, Optional, Tuple, Union
 import hydra
 import matplotlib.pyplot as plt
 import pandas as pd
-import utils
 from hydra.core.config_store import ConfigStore
 
+import utils
 from config import ReposConfig
 
 cs = ConfigStore.instance()
