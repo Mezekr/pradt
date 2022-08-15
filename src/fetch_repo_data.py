@@ -101,6 +101,32 @@ class RepoDataFetcher:
             return repos_dir
         return repos_dir
 
+    def create_repo_dir(self, repo_name: str, show_msg: bool = False) -> Path:
+        """creates a sub-directory for the resulting repository-related data files.
+
+        Args:
+            repo_name (str): Repository's full name
+            show_msg (bool, optional): To show the message if the directory already exists.
+                                        Defaults to False.
+
+        Returns:
+            Path: Path of repository sub-directory to be created.
+        """
+
+        dataset_dir = self.create_repos_dir()
+        repo_name = repo_name.split("/")[-1]
+        repo_path = Path(dataset_dir, repo_name)
+
+        if not repo_path.exists():
+            Path.mkdir(repo_path, exist_ok=True)
+            print(f"{repo_name}: New dir is created ")
+            logging.info(f"{repo_name}: New dir is created ")
+        else:
+            if show_msg:
+                print(f"{repo_name}: Dir exist already ")
+                logging.info(f"{repo_name}: Dir exist already ")
+        return repo_path
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
