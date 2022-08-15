@@ -388,6 +388,45 @@ class RepoDataFetcher:
             print(f"{repo_name}:  Contributors file is created")
             logging.info(f"{repo_name}:  Contributors file is created")
 
+    def get_stargazer_his(self, repo_name: str)-> None:
+        """Retrieve repository stargazer history and saves it in a corresponding
+            stargazer CSV file under the repository folder. 
+
+        Args:
+            repo_name (str): Repository's full name.
+        """
+
+
+        file_exist, file_to_save = self.check_file(repo_name, "stargazer")
+        if file_exist:
+            print(f"{repo_name} {file_to_save.stem} file already exists")
+            logging.info(f"{repo_name} {file_to_save.stem} file already exists")
+        else:
+            df_repo = pd.DataFrame()
+            gh_user = self.get_github_user()
+            repo = gh_user.get_repo(repo_name)
+            repo_stars = repo.get_stargazers_with_dates()
+            num_stars_returned = 0
+            for index, star in enumerate(repo_stars):
+                self.check_API_ratelimit(gh_user, 25)
+                num_stars_returned = index + 1
+                df_repo = df_repo.append(
+                    {
+                        "repo_name": repo_name,
+                        "starred_user": star.user,
+                        "starred_at": star.starred_at,
+                    },
+                    ignore_index=True,
+                )
+
+            if num_stars_returned < repo.stargazers_count:
+                print(f"Because stars are more than {num_stars_returned}")
+                print(f"Only the first {num_stars_returned} are returned from Github")
+                print("#" * 25)
+
+            df_repo.to_csv(file_to_save, index=False)
+            print(f"{repo_name}: stargazer file has been created")
+            logging.info(f"{repo_name}: stargazer file is created")
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
