@@ -215,6 +215,48 @@ class RowRepoDataProcessor:
 
         return feat_resample
 
+    def agg_repo_feat(self, row_data_dir: str, save_path: str) -> None:
+        """Aggregates individual repository feature data.
+        Args:
+            repos_dir (str): Path of Directory of the repositories to be processed.
+            save_path (str): Path of Directory to save the  processed repositories.
+
+        """
+        # save_to: Path = Path(save_path)
+        # row_data_path: Path = Path(row_data_dir)
+        # if not (row_data_path.exists() and save_to.exists()):
+        #     raise NotFoundError(
+        #         f'Path Does not Exist: "{row_data_path} or {save_to}" not found.'
+        #     )
+        row_data_path, save_to = utils.set_path(row_data_dir, save_path)
+        dir_list = utils.list_repos_dirs(row_data_path)
+        print(f"Aggrigating {len(dir_list)} repositories feature....")
+        for repo_path in dir_list:
+            print(repo_path)
+
+            commits = self.process_commits("commits", str(repo_path), save_path)
+            forks = self.process_forks("forks", str(repo_path), save_path)
+            stars = self.process_stargazer("stargazer", str(repo_path), save_path)
+            pris = self.process_issue_pullrequest(
+                "issues_pulls", str(repo_path), save_path
+            )
+
+            merged_df = pd.merge(
+                commits, forks, how="outer", left_index=True, right_index=True
+            )
+            merged_df = pd.merge(
+                merged_df, stars, how="outer", left_index=True, right_index=True
+            )
+            merged_df = pd.merge(
+                merged_df, pris, how="outer", left_index=True, right_index=True
+            )
+            merged_NaN_df = merged_df.fillna(0)
+            processed_file_path = utils.get_save_path(
+                "all_feature", repo_path, save_to, True
+            )
+            merged_NaN_df.to_csv(processed_file_path, index_label="date")
+        print("Repository features has been merged successfully")
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
