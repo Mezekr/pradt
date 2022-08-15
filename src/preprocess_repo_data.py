@@ -183,6 +183,38 @@ class RowRepoDataProcessor:
 
         return ps_merged_df
 
+    def process_stargazer(
+        self, feature_name: str, repo_dir: str, save_path: str
+    ) -> Union[pd.DataFrame, pd.Series]:
+        """Creates a stars time series data.
+
+        Args:
+            feature_name (str): Feature(stars) of repository to be processed.
+            repo_dir (str): Directory path of the repository to be processed.
+            save_path (str):  Directory path to save Stars time series data.
+
+        Returns:
+            Optional[pd.DataFrame]: Returns Dataframe of the Stars time series data.
+        """
+        # save_to: Path = Path(save_path)
+        # if not (repo_path.exists() and save_to.exists()):
+        #     raise NotFoundError(
+        #         f'Path Does not Exist: "{repo_path} or {save_to}" not found.'
+        #     )
+        repo_path, save_to = utils.set_path(repo_dir, save_path)
+        raw_file = utils.get_feat_file(feature_name, repo_path)
+
+        feat_df = pd.read_csv(raw_file, parse_dates=["starred_at"])
+        feat_df = feat_df.groupby(pd.Grouper(key="starred_at", freq="D"))
+        feat_resample = feat_df["starred_at"].count().to_frame(name="Stars_count")
+
+        processed_file_path = utils.get_save_path(
+            feature_name, repo_path, save_to, True
+        )
+        feat_resample.to_csv(processed_file_path)
+
+        return feat_resample
+
 
 @hydra.main(config_path="conf", config_name="config", version_base=None)
 def main(cfg: ReposConfig):
