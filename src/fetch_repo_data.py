@@ -232,7 +232,7 @@ class RepoDataFetcher:
             df_repo.to_csv(file_to_save, index=False)
             print(f"{repo_name}: commits file is created")
             logging.info(f"{repo_name}: commits file is created")
-            
+
     def get_issues_and_pull_his(self, repo_name:str)-> None:
         """Retrieve repository pull requests andissues history and saves it in a corresponding
          issues_pulls CSV file under the repository folder. 
@@ -271,6 +271,43 @@ class RepoDataFetcher:
             df_repo.to_csv(file_to_save, index=False)
             print(f"{repo_name}: Issues and pull requests file is created")
             logging.info(f"{repo_name}: Issues and pull requests file is created")
+            
+    def get_forks_his(self, repo_name:str)-> None:
+        """Retrieve repository forks history and saves it in a corresponding
+            forks CSV file under the repository folder. 
+
+
+        Args:
+            repo_name (str): Repository's full name.
+        """
+
+        file_exist, file_to_save = self.check_file(repo_name, "forks")
+        if file_exist:
+            print(f"{repo_name} {file_to_save.stem} file already exists")
+            logging.info(f"{repo_name} {file_to_save.stem} file already exists")
+        else:
+            df_repo = pd.DataFrame()
+            gh_user = self.get_github_user()
+
+            repo = gh_user.get_repo(repo_name)
+
+            repo_fork = repo.get_forks()
+
+            for index, fork in enumerate(repo_fork):
+                self.check_API_ratelimit(gh_user, 25)
+                df_repo = df_repo.append(
+                    {
+                        "repo_name": repo_name,
+                        "fork_count": repo_fork.totalCount,
+                        "forked_user": fork.full_name,
+                        "forked_at": fork.created_at,
+                    },
+                    ignore_index=True,
+                )
+
+            df_repo.to_csv(file_to_save, index=False)
+            print(f"{repo_name}: forks file is created")
+            logging.info(f"{repo_name}: forks file is created")
 
 
 
