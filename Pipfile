@@ -4,8 +4,19 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pandas = "*"
+pathlib = "*"
+hydra-core = "*"
+pyyaml = "*"
+datetime = "*"
+matplotlib = "*"
+numpy = "*"
+python-dotenv = "*"
+pygithub = "*"
 
 [dev-packages]
+ipykernel = "*"
+black = "*"
 
 [requires]
 python_version = "3.9"
