@@ -11,7 +11,7 @@ def create_dir(proj_dir: Path) -> None:
     raw_data_dir = Path(data_dir, "raw").mkdir(parents=True, exist_ok=True)
     processed_data_dir = Path(data_dir, "processed").mkdir(parents=True, exist_ok=True)
     final_data_dir = Path(data_dir, "final").mkdir(parents=True, exist_ok=True)
-    notebooks_dir = Path(data_dir, "notebooks").mkdir(parents=True, exist_ok=True)
+    notebooks_dir = Path(proj_dir, "notebooks").mkdir(parents=True, exist_ok=True)
 
     print("Directories created successfully")
 
