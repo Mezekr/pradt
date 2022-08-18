@@ -19,11 +19,11 @@ To set up the environment:
 Then run the Makefile commands:
 
 ```makefile
-make install # to create virtual environment
+make install    # to create virtual environment
 
-make activiate #Activating virtual environment
+make activiate  # Activating virtual environment
 
-make setdds  # creates dirs fro data prepoxessing
+make setdds     # creates directories for data preprocessing
 ```
 
 Then the retrieved raw repository data is stored in raw dir and the processed data is stored in processed dir. The final directory stores the prepared timesereis data.
